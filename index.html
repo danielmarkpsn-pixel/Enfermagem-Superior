@@ -2,13 +2,19 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#075e5a"><title>Enfermagem Superior — V6.0</title>
+<meta name="theme-color" content="#075e5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Enfermagem Superior">
+<meta name="description" content="Portal acadêmico educacional para o curso de Enfermagem — 8 semestres, 45 componentes curriculares.">
+<title>Enfermagem Superior — V7.0</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="login" class="login-screen">
  <div class="login-card">
-  <div class="logo">✚</div><h1>Enfermagem Superior</h1><p>Portal Acadêmico • V6.0</p>
+  <div class="logo">✚</div><h1>Enfermagem Superior</h1><p>Portal Acadêmico • V7.0</p>
   <div class="login-tabs"><button class="lt active" data-mode="login">Entrar</button><button class="lt" data-mode="register">Criar conta</button></div>
   <form id="authForm"></form>
   <div class="demo">Demo: <b>aluno@demo.com</b> / <b>1234</b> · Professor: <b>professor@demo.com</b> / <b>1234</b> · Admin: <b>admin@demo.com</b> / <b>1234</b></div>
@@ -22,5 +28,16 @@
 </div>
 <div id="modal" class="hidden"><div class="modal-card"><div class="modal-title"><h2 id="mtitle"></h2><button id="mclose">×</button></div><div id="mbody"></div></div></div>
 <div id="toast"></div>
-<script src="data.js"></script><script src="app.js"></script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator && window.APP_CONFIG && window.APP_CONFIG.features && window.APP_CONFIG.features.pwa) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('sw.js')
+        .then(function(reg) { console.log('✅ PWA registrada:', reg.scope); })
+        .catch(function(err) { console.warn('⚠️ PWA falhou:', err); });
+    });
+  }
+</script>
 </body></html>
