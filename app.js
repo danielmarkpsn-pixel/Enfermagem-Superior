@@ -1,8 +1,7 @@
 /* =========================================================
-   DADOS BASE (faltavam no arquivo original)
+   DADOS BASE
    ========================================================= */
 
-// Estrutura curricular: [semestre, código, nome]
 const DISC = [
   ["1º","ENF101","Anatomia Humana"],
   ["1º","ENF102","Fisiologia Humana"],
@@ -76,12 +75,11 @@ function read(){
       return fresh();
     }
 
-    // Garante campos que podem faltar em versões antigas
-    saved.notices  = Array.isArray(saved.notices)  ? saved.notices  : [];
-    saved.events   = Array.isArray(saved.events)   ? saved.events   : [];
-    saved.fav      = Array.isArray(saved.fav)      ? saved.fav      : [];
-    saved.theme    = saved.theme === "dark" ? "dark" : "light";
-    saved.session  = saved.session ?? null;
+    saved.notices = Array.isArray(saved.notices) ? saved.notices : [];
+    saved.events  = Array.isArray(saved.events)  ? saved.events  : [];
+    saved.fav     = Array.isArray(saved.fav)     ? saved.fav     : [];
+    saved.theme   = saved.theme === "dark" ? "dark" : "light";
+    saved.session = saved.session ?? null;
 
     return saved;
   } catch (e) {
@@ -214,23 +212,20 @@ function nav(){
 
 function render(){
 
-  // Sessão inválida
   if (DB.session && !DB.users.some(u => u.id === DB.session)){
     DB.session = null;
     save();
   }
 
-  // Não logado
   if (!DB.session){
-    $("#login")?.classList.remove("hidden");
-    $("#app")?.classList.add("hidden");
+    const l = $("#login"); if (l) l.classList.remove("hidden");
+    const a = $("#app");   if (a) a.classList.add("hidden");
     renderAuth();
     return;
   }
 
-  // Logado
-  $("#login")?.classList.add("hidden");
-  $("#app")?.classList.remove("hidden");
+  const l = $("#login"); if (l) l.classList.add("hidden");
+  const a = $("#app");   if (a) a.classList.remove("hidden");
 
   const u = me();
   if (!u){
@@ -257,7 +252,7 @@ function render(){
   $$("[data-p]").forEach(x => {
     x.onclick = () => {
       page = x.dataset.p;
-      $("#side")?.classList.remove("open");
+      const s = $("#side"); if (s) s.classList.remove("open");
       render();
     };
   });
@@ -329,7 +324,6 @@ function renderAuth(){
       return;
     }
 
-    // Cadastro
     const email = $("#remail").value.trim().toLowerCase();
 
     if (DB.users.some(x => x.email.toLowerCase() === email)){
@@ -357,7 +351,7 @@ function renderAuth(){
 }
 
 /* =========================================================
-   BIND (eventos após render)
+   BIND
    ========================================================= */
 
 function bind(){
@@ -365,7 +359,7 @@ function bind(){
   $$("[data-p]").forEach(x => {
     x.onclick = () => {
       page = x.dataset.p;
-      $("#side")?.classList.remove("open");
+      const s = $("#side"); if (s) s.classList.remove("open");
       render();
     };
   });
@@ -919,4 +913,120 @@ function config(){
     </div>
     <div class="card">
       <h2>Dados locais</h2>
-      <button class="btn danger" data-act="
+      <button class="btn danger" data-act="reset">Restaurar demonstração</button>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   ROTEADOR DE PÁGINAS
+   ========================================================= */
+
+const P = {
+  dashboard(){
+    const u = me();
+    if (!u) return "";
+
+    if (u.role === "aluno")     return dashboardAluno();
+    if (u.role === "professor") return dashboardProf();
+    return dashboardAdmin();
+  },
+  curso,
+  biblioteca,
+  avaliacoes,
+  notas,
+  frequencia,
+  agenda,
+  perfil,
+  turmas,
+  materiais,
+  questoes,
+  provas,
+  lancamentos,
+  avisos,
+  usuarios,
+  estrutura,
+  relatorios,
+  config
+};
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+function modal(t, b){
+  const mt = $("#mtitle"); if (mt) mt.textContent = t;
+  const mb = $("#mbody");  if (mb) mb.innerHTML   = b;
+  const mo = $("#modal");  if (mo) mo.classList.remove("hidden");
+}
+
+function close(){
+  const mo = $("#modal"); if (mo) mo.classList.add("hidden");
+}
+
+/* =========================================================
+   AÇÕES
+   ========================================================= */
+
+function action(a){
+
+  if (a === "theme"){
+    DB.theme = DB.theme === "dark" ? "light" : "dark";
+    save();
+    render();
+    return;
+  }
+
+  if (a === "reset"){
+    if (confirm("Restaurar os dados demonstrativos?")){
+      const s = DB.session;
+      DB = fresh();
+      DB.session = s;
+      save();
+      render();
+    }
+    return;
+  }
+
+  if (a === "export"){
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(new Blob(
+      [JSON.stringify(DB, null, 2)],
+      { type: "application/json" }
+    ));
+    link.href = url;
+    link.download = "enfermagem-v6-backup.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    return;
+  }
+
+  if (a === "import"){
+    const i = document.createElement("input");
+    i.type = "file";
+    i.accept = ".json";
+
+    i.onchange = () => {
+      const r = new FileReader();
+      r.onload = () => {
+        try {
+          DB = JSON.parse(r.result);
+          save();
+          render();
+          toast("Backup importado.");
+        } catch {
+          toast("JSON inválido.");
+        }
+      };
+      r.readAsText(i.files[0]);
+    };
+
+    i.click();
+    return;
+  }
+
+  if (a === "user"){
+    modal("Novo usuário", `
+      <form id="uf">
+        <label>Nome <input id="un" required></label>
+        <label>E-mail <input id="ue" type="
