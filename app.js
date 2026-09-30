@@ -14,7 +14,7 @@ function read(){
       !Array.isArray(saved.grades) ||
       !Array.isArray(saved.attendance) ||
       !Array.isArray(saved.questions) ||
-      !Array.isArray(saved.exams)
+      !Array.isArray(saved.exams) 
     ){
       return fresh();
     }
