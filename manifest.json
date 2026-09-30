@@ -1,0 +1,15 @@
+{
+  "name": "Enfermagem Superior",
+  "short_name": "Enfermagem",
+  "description": "Portal academico educacional para o curso de Enfermagem",
+  "start_url": "/Enfermagem-Superior/",
+  "scope": "/Enfermagem-Superior/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
