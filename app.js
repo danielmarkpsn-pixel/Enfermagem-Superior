@@ -1,58 +1,6 @@
-/* =========================================================
-   DADOS BASE
-   ========================================================= */
+let DB=read(), mode="login", page="dashboard", sem="1º";
 
-const DISC = [
-  ["1º","ENF101","Anatomia Humana"],
-  ["1º","ENF102","Fisiologia Humana"],
-  ["1º","ENF103","Fundamentos de Enfermagem"],
-  ["2º","ENF201","Farmacologia"],
-  ["2º","ENF202","Semiologia e Semiotécnica"],
-  ["3º","ENF301","Saúde Coletiva"],
-  ["3º","ENF302","Epidemiologia"],
-  ["4º","ENF401","Enfermagem Médico-Cirúrgica"],
-  ["5º","ENF501","Enfermagem em UTI"],
-  ["6º","ENF601","Saúde Mental"],
-  ["7º","ENF701","Gestão em Enfermagem"],
-  ["8º","ENF801","TCC"]
-];
-
-function fresh(){
-  return {
-    users: [
-      {
-        id: "u1",
-        name: "Administrador",
-        email: "admin@local",
-        pass: "admin",
-        role: "admin",
-        semester: "1º",
-        active: true
-      }
-    ],
-    materials: [],
-    grades: [],
-    attendance: [],
-    questions: [],
-    exams: [],
-    notices: [],
-    events: [],
-    fav: [],
-    theme: "light",
-    session: null
-  };
-}
-
-/* =========================================================
-   ESTADO GLOBAL
-   ========================================================= */
-
-let DB = read();
-let mode = "login";
-let page = "dashboard";
-let sem = "1º";
-
-const $  = (s) => document.querySelector(s);
+const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 
 /* =========================================================
@@ -60,10 +8,10 @@ const $$ = (s) => [...document.querySelectorAll(s)];
    ========================================================= */
 
 function read(){
-  try {
-    const saved = JSON.parse(localStorage.getItem("enf_v6"));
+  try{
+    const saved=JSON.parse(localStorage.getItem("enf_v6"));
 
-    if (
+    if(
       !saved ||
       !Array.isArray(saved.users) ||
       !Array.isArray(saved.materials) ||
@@ -71,54 +19,57 @@ function read(){
       !Array.isArray(saved.attendance) ||
       !Array.isArray(saved.questions) ||
       !Array.isArray(saved.exams)
-    ) {
+    ){
       return fresh();
     }
 
+    // Garante campos que podem faltar em versões antigas
     saved.notices = Array.isArray(saved.notices) ? saved.notices : [];
     saved.events  = Array.isArray(saved.events)  ? saved.events  : [];
     saved.fav     = Array.isArray(saved.fav)     ? saved.fav     : [];
+    saved.logs    = Array.isArray(saved.logs)    ? saved.logs    : [];
     saved.theme   = saved.theme === "dark" ? "dark" : "light";
     saved.session = saved.session ?? null;
 
     return saved;
-  } catch (e) {
+
+  }catch(e){
     return fresh();
   }
 }
 
 function save(){
-  localStorage.setItem("enf_v6", JSON.stringify(DB));
+  localStorage.setItem("enf_v6",JSON.stringify(DB));
 }
 
 function me(){
-  return DB.users.find(u => u.id === DB.session);
+  return DB.users.find(u=>u.id===DB.session);
 }
 
 function d(c){
-  return DISC.find(x => x[1] === c) || ["", "", c];
+  return DISC.find(x=>x[1]===c)||["","",c];
 }
 
 function role(r){
-  return r === "aluno"     ? "Aluno"
-       : r === "professor" ? "Professor"
-       :                     "Administrador";
+  return r==="aluno"?"Aluno":
+         r==="professor"?"Professor":
+         "Administrador";
 }
 
 function ini(n){
-  return String(n || "")
+  return String(n||"")
     .split(" ")
     .filter(Boolean)
-    .map(x => x[0])
-    .slice(0, 2)
+    .map(x=>x[0])
+    .slice(0,2)
     .join("")
     .toUpperCase();
 }
 
 function esc(x){
-  return String(x ?? "").replace(
+  return String(x??"").replace(
     /[&<>"']/g,
-    m => ({
+    m=>({
       "&":"&amp;",
       "<":"&lt;",
       ">":"&gt;",
@@ -129,18 +80,14 @@ function esc(x){
 }
 
 function toast(t){
-  const e = document.createElement("div");
-  e.className = "toast";
-  e.textContent = t;
+  let e=document.createElement("div");
+  e.className="toast";
+  e.textContent=t;
   document.body.append(e);
-  setTimeout(() => e.remove(), 2400);
+  setTimeout(()=>e.remove(),2400);
 }
 
-/* =========================================================
-   COMPONENTES DE UI
-   ========================================================= */
-
-function head(t, s, b = ""){
+function head(t,s,b=""){
   return `
   <div class="head">
     <div>
@@ -151,7 +98,7 @@ function head(t, s, b = ""){
   </div>`;
 }
 
-function stat(a, b, c){
+function stat(a,b,c){
   return `
   <div class="card stat">
     <div class="label">${a}</div>
@@ -165,12 +112,12 @@ function stat(a, b, c){
    ========================================================= */
 
 function nav(){
-  const u = me();
-  if (!u) return [];
+  let u=me();
+  if(!u) return [];
 
-  const n = [["dashboard","⌂","Dashboard"]];
+  let n=[["dashboard","⌂","Dashboard"]];
 
-  if (u.role === "aluno")
+  if(u.role==="aluno")
     n.push(
       ["curso","🎓","Meu Curso"],
       ["biblioteca","📚","Biblioteca"],
@@ -181,7 +128,7 @@ function nav(){
       ["perfil","👤","Meu Perfil"]
     );
 
-  if (u.role === "professor")
+  if(u.role==="professor")
     n.push(
       ["turmas","👥","Turmas"],
       ["materiais","📄","Materiais"],
@@ -192,7 +139,7 @@ function nav(){
       ["agenda","🗓️","Calendário"]
     );
 
-  if (u.role === "admin")
+  if(u.role==="admin")
     n.push(
       ["usuarios","👥","Usuários"],
       ["estrutura","🎓","Curso"],
@@ -207,76 +154,69 @@ function nav(){
 }
 
 /* =========================================================
-   RENDER PRINCIPAL
+   RENDER
    ========================================================= */
 
 function render(){
 
-  if (DB.session && !DB.users.some(u => u.id === DB.session)){
-    DB.session = null;
+  if(DB.session && !DB.users.some(u=>u.id===DB.session)){
+    DB.session=null;
     save();
   }
 
-  if (!DB.session){
-    const l = $("#login"); if (l) l.classList.remove("hidden");
-    const a = $("#app");   if (a) a.classList.add("hidden");
+  if(!DB.session){
+    const lg=$("#login"); if(lg) lg.classList.remove("hidden");
+    const ap=$("#app");   if(ap) ap.classList.add("hidden");
     renderAuth();
     return;
   }
 
-  const l = $("#login"); if (l) l.classList.add("hidden");
-  const a = $("#app");   if (a) a.classList.remove("hidden");
+  const lg=$("#login"); if(lg) lg.classList.add("hidden");
+  const ap=$("#app");   if(ap) ap.classList.remove("hidden");
 
-  const u = me();
-  if (!u){
-    DB.session = null;
+  let u=me();
+  if(!u){
+    DB.session=null;
     save();
     render();
     return;
   }
 
-  if ($("#headUser")) $("#headUser").textContent = u.name;
-  if ($("#avatar"))   $("#avatar").textContent   = ini(u.name);
-  if ($("#sideName")) $("#sideName").textContent = u.name;
-  if ($("#sideRole")) $("#sideRole").textContent = role(u.role);
+  if($("#headUser")) $("#headUser").textContent = u.name;
+  if($("#avatar"))   $("#avatar").textContent   = ini(u.name);
+  if($("#sideName")) $("#sideName").textContent = u.name;
+  if($("#sideRole")) $("#sideRole").textContent = role(u.role);
 
-  const navEl = $("#nav");
-  if (navEl){
-    navEl.innerHTML = nav().map(x => `
-      <button class="${page === x[0] ? "active" : ""}" data-p="${x[0]}">
-        ${x[1]} ${x[2]}
-      </button>
-    `).join("");
+  const navEl=$("#nav");
+  if(navEl){
+    navEl.innerHTML =
+      nav().map(x=>`
+        <button class="${page===x[0]?"active":""}" data-p="${x[0]}">
+          ${x[1]} ${x[2]}
+        </button>
+      `).join("");
   }
 
-  $$("[data-p]").forEach(x => {
-    x.onclick = () => {
-      page = x.dataset.p;
-      const s = $("#side"); if (s) s.classList.remove("open");
-      render();
-    };
-  });
-
-  const main = $("#main");
-  if (main){
+  const main=$("#main");
+  if(main){
     const fn = P[page] || P.dashboard;
     main.innerHTML = fn ? fn() : "";
   }
 
   bind();
 
-  document.body.classList.toggle("dark", DB.theme === "dark");
+  document.body.classList.toggle("dark", DB.theme==="dark");
 }
 
 /* =========================================================
-   AUTENTICAÇÃO
+   AUTH
    ========================================================= */
 
 function renderAuth(){
-  const f = $("#authForm");
-  if (!f) return;
+  const f=$("#authForm");
+  if(!f) return;
 
-  f.innerHTML = mode === "login" ? `
+  f.innerHTML = mode==="login" ? `
     <label>E-mail <input id="email" type="email" required></label>
     <label>Senha  <input id="pass"  type="password" required></label>
     <button class="btn primary full">Entrar</button>
@@ -292,59 +232,59 @@ function renderAuth(){
     </label>
     <label>Semestre
       <select id="rsem">
-        ${[...new Set(DISC.map(x => x[0]))].map(x => `<option>${x}</option>`).join("")}
+        ${[...new Set(DISC.map(x=>x[0]))].map(x=>`<option>${x}</option>`).join("")}
       </select>
     </label>
     <button class="btn primary full">Criar conta local</button>
   `;
 
-  f.onsubmit = (e) => {
+  f.onsubmit=e=>{
     e.preventDefault();
 
-    if (mode === "login"){
-      const email = $("#email").value.trim();
-      const pass  = $("#pass").value;
+    if(mode==="login"){
+      const email=$("#email").value.trim();
+      const pass=$("#pass").value;
 
-      const u = DB.users.find(x =>
-        x.email.toLowerCase() === email.toLowerCase() &&
-        x.pass === pass &&
-        x.active !== false
+      const u=DB.users.find(x=>
+        x.email.toLowerCase()===email.toLowerCase() &&
+        x.pass===pass &&
+        x.active!==false
       );
 
-      if (!u){
+      if(!u){
         toast("E-mail ou senha incorretos.");
         return;
       }
 
-      DB.session = u.id;
+      DB.session=u.id;
       save();
-      page = "dashboard";
+      page="dashboard";
       render();
       toast("Login realizado com sucesso.");
       return;
     }
 
-    const email = $("#remail").value.trim().toLowerCase();
+    const email=$("#remail").value.trim().toLowerCase();
 
-    if (DB.users.some(x => x.email.toLowerCase() === email)){
+    if(DB.users.some(x=>x.email.toLowerCase()===email)){
       toast("Este e-mail já está cadastrado.");
       return;
     }
 
-    const u = {
-      id: "u" + Date.now(),
-      name: $("#rname").value.trim(),
-      email,
-      pass: $("#rpass").value,
-      role: $("#rrole").value,
-      semester: $("#rsem").value,
-      active: true
+    let u={
+      id:"u"+Date.now(),
+      name:$("#rname").value.trim(),
+      email:email,
+      pass:$("#rpass").value,
+      role:$("#rrole").value,
+      semester:$("#rsem").value,
+      active:true
     };
 
     DB.users.push(u);
-    DB.session = u.id;
+    DB.session=u.id;
     save();
-    page = "dashboard";
+    page="dashboard";
     render();
     toast("Conta criada localmente.");
   };
@@ -356,21 +296,20 @@ function renderAuth(){
 
 function bind(){
 
-  $$("[data-p]").forEach(x => {
-    x.onclick = () => {
-      page = x.dataset.p;
-      const s = $("#side"); if (s) s.classList.remove("open");
+  $$("[data-p]").forEach(x=>{
+    x.onclick=()=>{
+      page=x.dataset.p;
+      const s=$("#side"); if(s) s.classList.remove("open");
       render();
     };
   });
 
-  if ($("#searchMat")){
-    $("#searchMat").oninput = () => {
-      const grid = $("#matGrid");
-      if (!grid) return;
-      grid.innerHTML = matCards(
-        DB.materials.filter(m =>
-          (m.title + " " + d(m.disc)[2])
+  if($("#searchMat")){
+    $("#searchMat").oninput=()=>{
+      const g=$("#matGrid"); if(!g) return;
+      g.innerHTML = matCards(
+        DB.materials.filter(m=>
+          (m.title+" "+d(m.disc)[2])
             .toLowerCase()
             .includes($("#searchMat").value.toLowerCase())
         )
@@ -378,67 +317,61 @@ function bind(){
     };
   }
 
-  $$("[data-sem]").forEach(x => {
-    x.onclick = () => {
-      sem = x.dataset.sem;
-      render();
-    };
+  $$("[data-sem]").forEach(x=>{
+    x.onclick=()=>{ sem=x.dataset.sem; render(); };
   });
 
-  $$("[data-fav]").forEach(x => {
-    x.onclick = () => {
-      const id = x.dataset.fav;
+  $$("[data-fav]").forEach(x=>{
+    x.onclick=()=>{
+      const id=x.dataset.fav;
       DB.fav = DB.fav.includes(id)
-        ? DB.fav.filter(a => a !== id)
+        ? DB.fav.filter(a=>a!==id)
         : [...DB.fav, id];
       save();
       render();
     };
   });
 
-  $$("[data-act]").forEach(x => {
-    x.onclick = () => action(x.dataset.act);
+  $$("[data-act]").forEach(x=>{
+    x.onclick=()=>action(x.dataset.act);
   });
 
-  $$("[data-deluser]").forEach(x => {
-    x.onclick = () => {
-      DB.users = DB.users.filter(u => u.id !== x.dataset.deluser);
-      save();
-      render();
+  $$("[data-deluser]").forEach(x=>{
+    x.onclick=()=>{
+      DB.users = DB.users.filter(u=>u.id!==x.dataset.deluser);
+      save(); render();
       toast("Usuário removido.");
     };
   });
 
-  $$("[data-delq]").forEach(x => {
-    x.onclick = () => {
-      DB.questions = DB.questions.filter(q => q.id !== x.dataset.delq);
-      save();
-      render();
+  $$("[data-delq]").forEach(x=>{
+    x.onclick=()=>{
+      DB.questions = DB.questions.filter(q=>q.id!==x.dataset.delq);
+      save(); render();
       toast("Questão removida.");
     };
   });
 
-  $$("[data-grade]").forEach(x => {
-    x.onchange = () => {
-      const g = DB.grades[x.dataset.grade];
-      if (g){
-        g.grade = Number(x.value) || 0;
+  $$("[data-grade]").forEach(x=>{
+    x.onchange=()=>{
+      const g=DB.grades[x.dataset.grade];
+      if(g){
+        g.grade = Number(x.value)||0;
         save();
         toast("Nota salva.");
       }
     };
   });
 
-  const pf = $("#profile");
-  if (pf){
-    pf.onsubmit = (e) => {
+  const pf=$("#profile");
+  if(pf){
+    pf.onsubmit=e=>{
       e.preventDefault();
-      const u = me();
-      if (!u) return;
-      u.name     = $("#pn").value;
-      u.semester = $("#ps").value;
-      save();
-      render();
+      let u=me();
+      if(!u) return;
+      u.name=$("#pn").value;
+      u.semester=$("#ps").value;
+      save(); render();
       toast("Perfil atualizado.");
     };
   }
@@ -449,20 +382,20 @@ function bind(){
    ========================================================= */
 
 function matCards(a){
-  if (!a.length){
+  if(!a.length){
     return `<div class="card empty">Nenhum material encontrado.</div>`;
   }
 
-  return a.map(m => `
+  return a.map(m=>`
     <div class="card">
       <div class="row">
-        <span class="badge">${m.type}</span>
+        <span class="badge">${esc(m.type)}</span>
         <button data-fav="${m.id}" class="btn secondary">
-          ${DB.fav.includes(m.id) ? "★" : "☆"}
+          ${DB.fav.includes(m.id)?"★":"☆"}
         </button>
       </div>
       <h3>${esc(m.title)}</h3>
-      <p class="muted">${d(m.disc)[2]} • ${m.sem} semestre</p>
+      <p class="muted">${d(m.disc)[2]} • ${esc(m.sem)} semestre</p>
       <div class="actions">
         <a class="btn secondary" href="${esc(m.file)}" target="_blank">Abrir</a>
       </div>
@@ -475,26 +408,26 @@ function matCards(a){
    ========================================================= */
 
 function dashboardAluno(){
-  const u = me();
-  const g = DB.grades.filter(x => x.student === u.id);
-  const a = DB.attendance.filter(x => x.student === u.id);
+  let u=me();
+  let g=DB.grades.filter(x=>x.student===u.id);
+  let a=DB.attendance.filter(x=>x.student===u.id);
 
-  const av = g.length
-    ? (g.reduce((s,x) => s + x.grade, 0) / g.length).toFixed(1)
+  let av = g.length
+    ? (g.reduce((s,x)=>s+x.grade,0)/g.length).toFixed(1)
     : "0,0";
 
-  const at = a.length
-    ? Math.round(a.reduce((s,x) => s + x.pct, 0) / a.length)
+  let at = a.length
+    ? Math.round(a.reduce((s,x)=>s+x.pct,0)/a.length)
     : 0;
 
   return head(
-    "Olá, " + u.name.split(" ")[0] + "! 👋",
+    "Olá, "+esc(u.name.split(" ")[0])+"! 👋",
     "Seu resumo acadêmico.",
     `<button class="btn primary" data-p="curso">Estudar</button>`
   ) + `
   <div class="grid stats">
     ${stat("Média", av, "Notas registradas")}
-    ${stat("Frequência", at + "%", "Média")}
+    ${stat("Frequência", at+"%", "Média")}
     ${stat("Materiais", DB.materials.length, "Biblioteca")}
     ${stat("Avaliações", DB.exams.length, "Agendadas")}
   </div>
@@ -503,29 +436,29 @@ function dashboardAluno(){
     <div class="card">
       <div class="section"><h2>Próximas avaliações</h2></div>
       ${DB.exams.length
-        ? DB.exams.map(e => `
-          <div class="row">
-            <span><b>${esc(e.title)}</b><small>${d(e.disc)[2]}</small></span>
-            <span class="badge">${esc(e.date)}</span>
-          </div>`).join("")
+        ? DB.exams.map(e=>`
+            <div class="row">
+              <span><b>${esc(e.title)}</b><small>${d(e.disc)[2]}</small></span>
+              <span class="badge">${esc(e.date)}</span>
+            </div>`).join("")
         : `<p class="muted">Nenhuma avaliação agendada.</p>`}
     </div>
 
     <div class="card">
       <div class="section"><h2>Avisos</h2></div>
       ${DB.notices.length
-        ? DB.notices.map(n => `
-          <div class="notice">
-            <b>${esc(n.title)}</b>
-            <div>${esc(n.text)}</div>
-          </div>`).join("")
+        ? DB.notices.map(n=>`
+            <div class="notice">
+              <b>${esc(n.title)}</b>
+              <div>${esc(n.text)}</div>
+            </div>`).join("")
         : `<p class="muted">Nenhum aviso publicado.</p>`}
     </div>
   </div>`;
 }
 
 function dashboardProf(){
-  const st = DB.users.filter(u => u.role === "aluno");
+  let st=DB.users.filter(u=>u.role==="aluno");
 
   return head(
     "Painel do Professor",
@@ -553,11 +486,11 @@ function dashboardProf(){
     <div class="card">
       <h2>Próximos eventos</h2>
       ${DB.exams.length
-        ? DB.exams.map(e => `
-          <div class="row">
-            ${esc(e.title)}
-            <span class="badge">${esc(e.date)}</span>
-          </div>`).join("")
+        ? DB.exams.map(e=>`
+            <div class="row">
+              ${esc(e.title)}
+              <span class="badge">${esc(e.date)}</span>
+            </div>`).join("")
         : `<p class="muted">Sem eventos.</p>`}
     </div>
   </div>`;
@@ -598,29 +531,29 @@ function dashboardAdmin(){
    ========================================================= */
 
 function curso(){
-  const u = me();
-  sem = u.semester || sem;
+  let u=me();
+  sem=u.semester||sem;
 
-  const ss = [...new Set(DISC.map(x => x[0]))];
-  const ds = DISC.filter(x => x[0] === sem);
+  let ss=[...new Set(DISC.map(x=>x[0]))];
+  let ds=DISC.filter(x=>x[0]===sem);
 
-  return head("Meu Curso", "Estrutura curricular completa.") + `
-  <div class="tabs">
-    ${ss.map(s => `
-      <button class="tab ${s === sem ? "active" : ""}" data-sem="${s}">
-        ${s} semestre
-      </button>`).join("")}
-  </div>
+  return head("Meu Curso","Estrutura curricular completa.") + `
+    <div class="tabs">
+      ${ss.map(s=>`
+        <button class="tab ${s===sem?"active":""}" data-sem="${s}">
+          ${s} semestre
+        </button>`).join("")}
+    </div>
 
-  <div class="grid three">
-    ${ds.map(x => `
-      <div class="card discipline">
-        <span class="code">${x[1]}</span>
-        <h3>${x[2]}</h3>
-        <p class="muted">Conteúdos, materiais e avaliações.</p>
-        <button class="btn secondary" data-p="biblioteca">Ver biblioteca</button>
-      </div>`).join("")}
-  </div>`;
+    <div class="grid three">
+      ${ds.map(x=>`
+        <div class="card discipline">
+          <span class="code">${esc(x[1])}</span>
+          <h3>${esc(x[2])}</h3>
+          <p class="muted">Conteúdos, materiais e avaliações.</p>
+          <button class="btn secondary" data-p="biblioteca">Ver biblioteca</button>
+        </div>`).join("")}
+    </div>`;
 }
 
 function biblioteca(){
@@ -629,144 +562,142 @@ function biblioteca(){
     "Materiais para estudo e consulta.",
     `<button class="btn primary" data-act="material">+ Material</button>`
   ) + `
-  <div class="search">
-    <input id="searchMat" placeholder="Pesquisar material...">
-  </div>
-
-  <div id="matGrid" class="grid three">
-    ${matCards(DB.materials)}
-  </div>`;
+    <div class="search">
+      <input id="searchMat" placeholder="Pesquisar material...">
+    </div>
+    <div id="matGrid" class="grid three">
+      ${matCards(DB.materials)}
+    </div>`;
 }
 
 function avaliacoes(){
-  return head("Avaliações", "Provas e questionários.") + `
-  <div class="grid two">
-    <div class="card">
-      <h2>Agenda</h2>
-      ${DB.exams.length
-        ? DB.exams.map(e => `
-          <div class="row">
-            <div><b>${esc(e.title)}</b><small>${d(e.disc)[2]}</small></div>
-            <span class="badge">${esc(e.date)}</span>
-          </div>`).join("")
-        : `<p class="muted">Sem avaliações.</p>`}
-    </div>
-
-    <div class="card">
-      <h2>Questionário</h2>
-      <p class="muted">Faça uma avaliação rápida usando o banco de questões.</p>
-      <button class="btn primary" data-act="quiz">Iniciar</button>
-    </div>
-  </div>`;
+  return head("Avaliações","Provas e questionários.") + `
+    <div class="grid two">
+      <div class="card">
+        <h2>Agenda</h2>
+        ${DB.exams.length
+          ? DB.exams.map(e=>`
+              <div class="row">
+                <div><b>${esc(e.title)}</b><small>${d(e.disc)[2]}</small></div>
+                <span class="badge">${esc(e.date)}</span>
+              </div>`).join("")
+          : `<p class="muted">Sem avaliações.</p>`}
+      </div>
+      <div class="card">
+        <h2>Questionário</h2>
+        <p class="muted">Faça uma avaliação rápida usando o banco de questões.</p>
+        <button class="btn primary" data-act="quiz">Iniciar</button>
+      </div>
+    </div>`;
 }
 
 function notas(){
-  const g = DB.grades.filter(x => x.student === me().id);
-  const av = g.length
-    ? (g.reduce((s,x) => s + x.grade, 0) / g.length).toFixed(1)
+  let g=DB.grades.filter(x=>x.student===me().id);
+  let av = g.length
+    ? (g.reduce((s,x)=>s+x.grade,0)/g.length).toFixed(1)
     : "0,0";
 
-  return head("Minhas Notas", "Desempenho acadêmico registrado.") + `
-  <div class="card">
-    <div class="score">${av}</div>
-    <p class="muted">Média</p>
-    <table class="table">
-      <tr><th>Disciplina</th><th>Nota</th></tr>
-      ${g.length
-        ? g.map(x => `
-          <tr>
-            <td>${d(x.disc)[2]}</td>
-            <td>${x.grade.toFixed(1)}</td>
-          </tr>`).join("")
-        : `<tr><td colspan="2">Sem notas lançadas.</td></tr>`}
-    </table>
-  </div>`;
+  return head("Minhas Notas","Desempenho acadêmico registrado.") + `
+    <div class="card">
+      <div class="score">${av}</div>
+      <p class="muted">Média</p>
+      <table class="table">
+        <tr><th>Disciplina</th><th>Nota</th></tr>
+        ${g.length
+          ? g.map(x=>`
+              <tr>
+                <td>${esc(d(x.disc)[2])}</td>
+                <td>${Number(x.grade).toFixed(1)}</td>
+              </tr>`).join("")
+          : `<tr><td colspan="2">Sem notas lançadas.</td></tr>`}
+      </table>
+    </div>`;
 }
 
 function frequencia(){
-  const a = DB.attendance.filter(x => x.student === me().id);
+  let a=DB.attendance.filter(x=>x.student===me().id);
 
-  return head("Minha Frequência", "Acompanhamento de presença.") + `
-  <div class="grid three">
-    ${a.length
-      ? a.map(x => `
-        <div class="card">
-          <b>${d(x.disc)[2]}</b>
-          <h2>${x.pct}%</h2>
-          <div class="kpi"><span style="width:${x.pct}%"></span></div>
-        </div>`).join("")
-      : `<p class="muted">Sem registros de frequência.</p>`}
-  </div>`;
+  return head("Minha Frequência","Acompanhamento de presença.") + `
+    <div class="grid three">
+      ${a.length
+        ? a.map(x=>`
+            <div class="card">
+              <b>${esc(d(x.disc)[2])}</b>
+              <h2>${x.pct}%</h2>
+              <div class="kpi"><span style="width:${x.pct}%"></span></div>
+            </div>`).join("")
+        : `<p class="muted">Sem registros de frequência.</p>`}
+    </div>`;
 }
 
 function agenda(){
-  const z = new Date();
-  const y = z.getFullYear();
-  const m = z.getMonth();
-  const first = new Date(y, m, 1).getDay();
-  const days = new Date(y, m + 1, 0).getDate();
+  let z=new Date();
+  let y=z.getFullYear();
+  let m=z.getMonth();
+  let first=new Date(y,m,1).getDay();
+  let days=new Date(y,m+1,0).getDate();
 
   let s = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"]
-    .map(x => `<div class="calh">${x}</div>`).join("");
+    .map(x=>`<div class="calh">${x}</div>`).join("");
 
-  for (let i = 0; i < first; i++) s += "<div></div>";
+  for(let i=0;i<first;i++) s+="<div></div>";
 
-  for (let day = 1; day <= days; day++){
-    const iso = `${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-    const ev = DB.events.find(e => e.date === iso);
+  for(let day=1;day<=days;day++){
+    let iso=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    let ev=DB.events.find(e=>e.date===iso);
 
-    s += `
-      <div class="cal ${ev ? "event" : ""}">
+    s+=`
+      <div class="cal ${ev?"event":""}">
         <b>${day}</b>
-        ${ev ? `<div>${esc(ev.title)}</div>` : ""}
+        ${ev?`<div>${esc(ev.title)}</div>`:""}
       </div>`;
   }
 
-  return head("Calendário", "Eventos acadêmicos.") + `
-  <div class="card" style="overflow:auto">
-    <div class="calendar">${s}</div>
-  </div>`;
+  return head("Calendário","Eventos acadêmicos.") + `
+    <div class="card" style="overflow:auto">
+      <div class="calendar">${s}</div>
+    </div>`;
 }
 
 function perfil(){
-  const u = me();
+  let u=me();
 
-  return head("Meu Perfil", "Atualize seus dados básicos.") + `
-  <div class="card">
-    <form id="profile">
-      <label>Nome <input id="pn" value="${esc(u.name)}"></label>
-      <label>E-mail <input value="${esc(u.email)}" disabled></label>
-      <label>Semestre
-        <select id="ps">
-          ${[...new Set(DISC.map(x => x[0]))].map(x => `
-            <option ${x === u.semester ? "selected" : ""}>${x}</option>
-          `).join("")}
-        </select>
-      </label>
-      <button class="btn primary">Salvar</button>
-    </form>
-  </div>`;
+  return head("Meu Perfil","Atualize seus dados básicos.") + `
+    <div class="card">
+      <form id="profile">
+        <label>Nome <input id="pn" value="${esc(u.name)}"></label>
+        <label>E-mail <input value="${esc(u.email)}" disabled></label>
+        <label>Semestre
+          <select id="ps">
+            ${[...new Set(DISC.map(x=>x[0]))].map(x=>`
+              <option ${x===u.semester?"selected":""}>${x}</option>
+            `).join("")}
+          </select>
+        </label>
+        <button class="btn primary">Salvar</button>
+      </form>
+    </div>`;
 }
 
 function turmas(){
-  return head("Turmas", "Alunos cadastrados e indicadores.") + `
-  <div class="card table-wrap">
-    <table class="table">
-      <tr><th>Aluno</th><th>Semestre</th><th>Média</th><th>Frequência</th></tr>
-      ${DB.users.filter(u => u.role === "aluno").map(u => {
-        const g = DB.grades.filter(x => x.student === u.id);
-        const a = DB.attendance.filter(x => x.student === u.id);
-        const av = g.length ? (g.reduce((s,x) => s + x.grade, 0)/g.length).toFixed(1) : "-";
-        const at = a.length ? Math.round(a.reduce((s,x) => s + x.pct, 0)/a.length) + "%" : "-";
-        return `<tr>
-          <td>${esc(u.name)}</td>
-          <td>${esc(u.semester)}</td>
-          <td>${av}</td>
-          <td>${at}</td>
-        </tr>`;
-      }).join("")}
-    </table>
-  </div>`;
+  return head("Turmas","Alunos cadastrados e indicadores.") + `
+    <div class="card table-wrap">
+      <table class="table">
+        <tr><th>Aluno</th><th>Semestre</th><th>Média</th><th>Frequência</th></tr>
+        ${DB.users.filter(u=>u.role==="aluno").map(u=>{
+          let g=DB.grades.filter(x=>x.student===u.id);
+          let a=DB.attendance.filter(x=>x.student===u.id);
+          let av = g.length ? (g.reduce((s,x)=>s+x.grade,0)/g.length).toFixed(1) : "-";
+          let at = a.length ? Math.round(a.reduce((s,x)=>s+x.pct,0)/a.length)+"%" : "-";
+          return `<tr>
+            <td>${esc(u.name)}</td>
+            <td>${esc(u.semester)}</td>
+            <td>${av}</td>
+            <td>${at}</td>
+          </tr>`;
+        }).join("")}
+      </table>
+    </div>`;
 }
 
 function materiais(){ return biblioteca(); }
@@ -777,15 +708,15 @@ function questoes(){
     "Gerencie questões.",
     `<button class="btn primary" data-act="question">+ Questão</button>`
   ) + `
-  <div class="card">
-    ${DB.questions.length
-      ? DB.questions.map(q => `
-        <div class="row">
-          <span><b>${esc(q.text)}</b><small>${d(q.disc)[2]}</small></span>
-          <button class="btn danger" data-delq="${q.id}">Excluir</button>
-        </div>`).join("")
-      : `<p class="muted">Nenhuma questão cadastrada.</p>`}
-  </div>`;
+    <div class="card">
+      ${DB.questions.length
+        ? DB.questions.map(q=>`
+            <div class="row">
+              <span><b>${esc(q.text)}</b><small>${esc(d(q.disc)[2])}</small></span>
+              <button class="btn danger" data-delq="${q.id}">Excluir</button>
+            </div>`).join("")
+        : `<p class="muted">Nenhuma questão cadastrada.</p>`}
+    </div>`;
 }
 
 function provas(){
@@ -794,32 +725,32 @@ function provas(){
     "Gerencie provas.",
     `<button class="btn primary" data-act="exam">+ Avaliação</button>`
   ) + `
-  <div class="card">
-    ${DB.exams.length
-      ? DB.exams.map(e => `
-        <div class="row">
-          <span><b>${esc(e.title)}</b><small>${d(e.disc)[2]}</small></span>
-          <span class="badge">${esc(e.date)}</span>
-        </div>`).join("")
-      : `<p class="muted">Nenhuma avaliação cadastrada.</p>`}
-  </div>`;
+    <div class="card">
+      ${DB.exams.length
+        ? DB.exams.map(e=>`
+            <div class="row">
+              <span><b>${esc(e.title)}</b><small>${esc(d(e.disc)[2])}</small></span>
+              <span class="badge">${esc(e.date)}</span>
+            </div>`).join("")
+        : `<p class="muted">Nenhuma avaliação cadastrada.</p>`}
+    </div>`;
 }
 
 function lancamentos(){
-  return head("Notas", "Lançamento de notas dos alunos.") + `
-  <div class="card table-wrap">
-    <table class="table">
-      <tr><th>Aluno</th><th>Disciplina</th><th>Nota</th></tr>
-      ${DB.grades.length
-        ? DB.grades.map((g, i) => `
-          <tr>
-            <td>${esc(DB.users.find(u => u.id === g.student)?.name || "")}</td>
-            <td>${d(g.disc)[2]}</td>
-            <td><input data-grade="${i}" value="${g.grade}"></td>
-          </tr>`).join("")
-        : `<tr><td colspan="3">Sem lançamentos.</td></tr>`}
-    </table>
-  </div>`;
+  return head("Notas","Lançamento de notas dos alunos.") + `
+    <div class="card table-wrap">
+      <table class="table">
+        <tr><th>Aluno</th><th>Disciplina</th><th>Nota</th></tr>
+        ${DB.grades.length
+          ? DB.grades.map((g,i)=>`
+              <tr>
+                <td>${esc(DB.users.find(u=>u.id===g.student)?.name||"")}</td>
+                <td>${esc(d(g.disc)[2])}</td>
+                <td><input data-grade="${i}" value="${g.grade}"></td>
+              </tr>`).join("")
+          : `<tr><td colspan="3">Sem lançamentos.</td></tr>`}
+      </table>
+    </div>`;
 }
 
 function avisos(){
@@ -828,16 +759,16 @@ function avisos(){
     "Comunicação acadêmica.",
     `<button class="btn primary" data-act="notice">+ Aviso</button>`
   ) + `
-  <div class="card">
-    ${DB.notices.length
-      ? DB.notices.map(n => `
-        <div class="notice">
-          <b>${esc(n.title)}</b>
-          <small>${esc(n.date)}</small>
-          <div>${esc(n.text)}</div>
-        </div>`).join("")
-      : `<p class="muted">Nenhum aviso.</p>`}
-  </div>`;
+    <div class="card">
+      ${DB.notices.length
+        ? DB.notices.map(n=>`
+            <div class="notice">
+              <b>${esc(n.title)}</b>
+              <small>${esc(n.date)}</small>
+              <div>${esc(n.text)}</div>
+            </div>`).join("")
+        : `<p class="muted">Nenhum aviso.</p>`}
+    </div>`;
 }
 
 function usuarios(){
@@ -846,22 +777,22 @@ function usuarios(){
     "Cadastro e gerenciamento de contas.",
     `<button class="btn primary" data-act="user">+ Usuário</button>`
   ) + `
-  <div class="card table-wrap">
-    <table class="table">
-      <tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th></th></tr>
-      ${DB.users.map(u => `
-        <tr>
-          <td>${esc(u.name)}</td>
-          <td>${esc(u.email)}</td>
-          <td><span class="badge">${role(u.role)}</span></td>
-          <td>${u.active ? "Ativo" : "Inativo"}</td>
-          <td>
-            ${u.id === DB.session ? "" :
-              `<button class="btn danger" data-deluser="${u.id}">Excluir</button>`}
-          </td>
-        </tr>`).join("")}
-    </table>
-  </div>`;
+    <div class="card table-wrap">
+      <table class="table">
+        <tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th></th></tr>
+        ${DB.users.map(u=>`
+          <tr>
+            <td>${esc(u.name)}</td>
+            <td>${esc(u.email)}</td>
+            <td><span class="badge">${role(u.role)}</span></td>
+            <td>${u.active?"Ativo":"Inativo"}</td>
+            <td>
+              ${u.id===DB.session ? "" :
+                `<button class="btn danger" data-deluser="${u.id}">Excluir</button>`}
+            </td>
+          </tr>`).join("")}
+      </table>
+    </div>`;
 }
 
 function estrutura(){
@@ -869,66 +800,67 @@ function estrutura(){
     "Curso e Disciplinas",
     "Estrutura curricular em 8 semestres."
   ) + `
-  <div class="grid three">
-    ${[...new Set(DISC.map(x => x[0]))].map(s => `
-      <div class="card">
-        <h2>${s} semestre</h2>
-        ${DISC.filter(x => x[0] === s).map(x => `
-          <div class="row">
-            <span>${x[1]} — ${x[2]}</span>
-            <span class="badge">Ativa</span>
-          </div>`).join("")}
-      </div>`).join("")}
-  </div>`;
+    <div class="grid three">
+      ${[...new Set(DISC.map(x=>x[0]))].map(s=>`
+        <div class="card">
+          <h2>${s} semestre</h2>
+          ${DISC.filter(x=>x[0]===s).map(x=>`
+            <div class="row">
+              <span>${esc(x[1])} — ${esc(x[2])}</span>
+              <span class="badge">Ativa</span>
+            </div>`).join("")}
+        </div>`).join("")}
+    </div>`;
 }
 
 function relatorios(){
-  const av = DB.grades.length
-    ? (DB.grades.reduce((s,x) => s + x.grade, 0)/DB.grades.length).toFixed(1)
+  let av = DB.grades.length
+    ? (DB.grades.reduce((s,x)=>s+x.grade,0)/DB.grades.length).toFixed(1)
     : "0,0";
-  const at = DB.attendance.length
-    ? Math.round(DB.attendance.reduce((s,x) => s + x.pct, 0)/DB.attendance.length)
+  let at = DB.attendance.length
+    ? Math.round(DB.attendance.reduce((s,x)=>s+x.pct,0)/DB.attendance.length)
     : 0;
 
-  return head("Relatórios", "Indicadores do ambiente local.") + `
-  <div class="grid three">
-    ${stat("Média geral", av, "Notas")}
-    ${stat("Frequência", at + "%", "Registros")}
-    ${stat("Usuários", DB.users.length, "Contas")}
-  </div>
-
-  <div class="card">
-    <h2>Backup</h2>
-    <button class="btn primary" data-act="export">Exportar JSON</button>
-    <button class="btn secondary" data-act="import">Importar JSON</button>
-  </div>`;
+  return head("Relatórios","Indicadores do ambiente local.") + `
+    <div class="grid three">
+      ${stat("Média geral", av, "Notas")}
+      ${stat("Frequência", at+"%", "Registros")}
+      ${stat("Usuários", DB.users.length, "Contas")}
+    </div>
+    <div class="card">
+      <h2>Backup</h2>
+      <button class="btn primary" data-act="export">Exportar JSON</button>
+      <button class="btn secondary" data-act="import">Importar JSON</button>
+    </div>`;
 }
 
 function config(){
-  return head("Configurações", "Preferências e manutenção.") + `
-  <div class="grid two">
-    <div class="card">
-      <h2>Tema</h2>
-      <button class="btn primary" data-act="theme">Alternar tema</button>
-    </div>
-    <div class="card">
-      <h2>Dados locais</h2>
-      <button class="btn danger" data-act="reset">Restaurar demonstração</button>
-    </div>
-  </div>`;
+  return head("Configurações","Preferências e manutenção.") + `
+    <div class="grid two">
+      <div class="card">
+        <h2>Tema</h2>
+        <button class="btn primary" data-act="theme">Alternar tema</button>
+      </div>
+      <div class="card">
+        <h2>Dados locais</h2>
+        <button class="btn danger" data-act="reset">Restaurar demonstração</button>
+      </div>
+    </div>`;
 }
 
 /* =========================================================
-   ROTEADOR DE PÁGINAS
+   ROTEADOR DE PÁGINAS  ← CORRIGIDO
    ========================================================= */
 
 const P = {
   dashboard(){
     const u = me();
-    if (!u) return "";
+    if(!u) return "";
 
-    if (u.role === "aluno")     return dashboardAluno();
-    if (u.role === "professor") return dashboardProf();
+    // IMPORTANTE: o return precisa estar na MESMA linha
+    // da expressão ternária, senão o JS insere ";" automático.
+    if(u.role==="aluno")     return dashboardAluno();
+    if(u.role==="professor") return dashboardProf();
     return dashboardAdmin();
   },
   curso,
@@ -954,14 +886,14 @@ const P = {
    MODAL
    ========================================================= */
 
-function modal(t, b){
-  const mt = $("#mtitle"); if (mt) mt.textContent = t;
-  const mb = $("#mbody");  if (mb) mb.innerHTML   = b;
-  const mo = $("#modal");  if (mo) mo.classList.remove("hidden");
+function modal(t,b){
+  const mt=$("#mtitle"); if(mt) mt.textContent=t;
+  const mb=$("#mbody");  if(mb) mb.innerHTML=b;
+  const mo=$("#modal");  if(mo) mo.classList.remove("hidden");
 }
 
 function close(){
-  const mo = $("#modal"); if (mo) mo.classList.add("hidden");
+  const mo=$("#modal"); if(mo) mo.classList.add("hidden");
 }
 
 /* =========================================================
@@ -970,63 +902,295 @@ function close(){
 
 function action(a){
 
-  if (a === "theme"){
-    DB.theme = DB.theme === "dark" ? "light" : "dark";
-    save();
-    render();
+  if(a==="theme"){
+    DB.theme = DB.theme==="dark" ? "light" : "dark";
+    save(); render();
     return;
   }
 
-  if (a === "reset"){
-    if (confirm("Restaurar os dados demonstrativos?")){
-      const s = DB.session;
-      DB = fresh();
-      DB.session = s;
+  if(a==="reset"){
+    if(confirm("Restaurar os dados demonstrativos?")){
+      let s=DB.session;
+      DB=fresh();
+      DB.session=s;
       save();
       render();
     }
     return;
   }
 
-  if (a === "export"){
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(new Blob(
-      [JSON.stringify(DB, null, 2)],
-      { type: "application/json" }
+  if(a==="export"){
+    const link=document.createElement("a");
+    const url=URL.createObjectURL(new Blob(
+      [JSON.stringify(DB,null,2)],
+      {type:"application/json"}
     ));
-    link.href = url;
-    link.download = "enfermagem-v6-backup.json";
+    link.href=url;
+    link.download="enfermagem-v6-backup.json";
     link.click();
     URL.revokeObjectURL(url);
     return;
   }
 
-  if (a === "import"){
-    const i = document.createElement("input");
-    i.type = "file";
-    i.accept = ".json";
-
-    i.onchange = () => {
-      const r = new FileReader();
-      r.onload = () => {
-        try {
-          DB = JSON.parse(r.result);
-          save();
-          render();
+  if(a==="import"){
+    const i=document.createElement("input");
+    i.type="file"; i.accept=".json";
+    i.onchange=()=>{
+      const r=new FileReader();
+      r.onload=()=>{
+        try{
+          DB=JSON.parse(r.result);
+          save(); render();
           toast("Backup importado.");
-        } catch {
+        }catch{
           toast("JSON inválido.");
         }
       };
       r.readAsText(i.files[0]);
     };
-
     i.click();
     return;
   }
 
-  if (a === "user"){
+  if(a==="user"){
     modal("Novo usuário", `
       <form id="uf">
         <label>Nome <input id="un" required></label>
-        <label>E-mail <input id="ue" type="
+        <label>E-mail <input id="ue" type="email" required></label>
+        <label>Senha <input id="up" required></label>
+        <label>Perfil
+          <select id="ur">
+            <option value="aluno">Aluno</option>
+            <option value="professor">Professor</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </label>
+        <label>Semestre
+          <select id="us">
+            ${[...new Set(DISC.map(x=>x[0]))].map(x=>`<option>${x}</option>`).join("")}
+          </select>
+        </label>
+        <button class="btn primary">Cadastrar</button>
+      </form>
+    `);
+
+    $("#uf").onsubmit=e=>{
+      e.preventDefault();
+      if(DB.users.some(x=>x.email.toLowerCase()===$("#ue").value.trim().toLowerCase())){
+        return toast("E-mail já cadastrado.");
+      }
+      DB.users.push({
+        id:"u"+Date.now(),
+        name:$("#un").value,
+        email:$("#ue").value.trim().toLowerCase(),
+        pass:$("#up").value,
+        role:$("#ur").value,
+        semester:$("#us").value,
+        active:true
+      });
+      save(); close(); render();
+      toast("Usuário cadastrado.");
+    };
+    return;
+  }
+
+  if(a==="material"){
+    modal("Novo material", `
+      <form id="mf">
+        <label>Título <input id="mn" required></label>
+        <label>Disciplina
+          <select id="md">
+            ${DISC.map(x=>`<option value="${x[1]}">${x[1]} — ${esc(x[2])}</option>`).join("")}
+          </select>
+        </label>
+        <label>PDF <input id="file" type="file" accept="application/pdf"></label>
+        <p class="muted">No modo estático, o PDF selecionado fica disponível somente nesta sessão.</p>
+        <button class="btn primary">Cadastrar</button>
+      </form>
+    `);
+
+    $("#mf").onsubmit=e=>{
+      e.preventDefault();
+      let f=$("#file").files[0];
+      DB.materials.push({
+        id:"m"+Date.now(),
+        title:$("#mn").value,
+        disc:$("#md").value,
+        sem:d($("#md").value)[0],
+        file: f ? URL.createObjectURL(f) : "materiais/LEIA-ME.txt",
+        type:"PDF"
+      });
+      save(); close(); render();
+      toast("Material cadastrado.");
+    };
+    return;
+  }
+
+  if(a==="question"){
+    modal("Nova questão", `
+      <form id="qf">
+        <label>Disciplina
+          <select id="qd">
+            ${DISC.map(x=>`<option value="${x[1]}">${x[1]} — ${esc(x[2])}</option>`).join("")}
+          </select>
+        </label>
+        <label>Enunciado <textarea id="qt" required></textarea></label>
+        ${[0,1,2,3].map(i=>`
+          <label>Alternativa ${i+1}<input id="qo${i}" required></label>
+        `).join("")}
+        <label>Resposta
+          <select id="qa">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
+        </label>
+        <button class="btn primary">Salvar</button>
+      </form>
+    `);
+
+    $("#qf").onsubmit=e=>{
+      e.preventDefault();
+      DB.questions.push({
+        id:"q"+Date.now(),
+        disc:$("#qd").value,
+        text:$("#qt").value,
+        opts:[0,1,2,3].map(i=>$("#qo"+i).value),
+        ans:+$("#qa").value-1
+      });
+      save(); close(); render();
+      toast("Questão salva.");
+    };
+    return;
+  }
+
+  if(a==="exam"){
+    modal("Nova avaliação", `
+      <form id="ef">
+        <label>Título <input id="et" required></label>
+        <label>Disciplina
+          <select id="ed">
+            ${DISC.map(x=>`<option value="${x[1]}">${x[1]} — ${esc(x[2])}</option>`).join("")}
+          </select>
+        </label>
+        <label>Data <input id="ee" type="date" required></label>
+        <button class="btn primary">Cadastrar</button>
+      </form>
+    `);
+
+    $("#ef").onsubmit=e=>{
+      e.preventDefault();
+      DB.exams.push({
+        id:"e"+Date.now(),
+        title:$("#et").value,
+        disc:$("#ed").value,
+        date:new Date($("#ee").value+"T12:00").toLocaleDateString("pt-BR")
+      });
+      save(); close(); render();
+      toast("Avaliação cadastrada.");
+    };
+    return;
+  }
+
+  if(a==="notice"){
+    modal("Novo aviso", `
+      <form id="nf">
+        <label>Título <input id="nt" required></label>
+        <label>Mensagem <textarea id="nx" required></textarea></label>
+        <button class="btn primary">Publicar</button>
+      </form>
+    `);
+
+    $("#nf").onsubmit=e=>{
+      e.preventDefault();
+      DB.notices.unshift({
+        id:"n"+Date.now(),
+        title:$("#nt").value,
+        text:$("#nx").value,
+        date:new Date().toLocaleDateString("pt-BR")
+      });
+      save(); close(); render();
+      toast("Aviso publicado.");
+    };
+    return;
+  }
+
+  if(a==="quiz"){
+    let qs=[...DB.questions].sort(()=>Math.random()-.5);
+
+    if(!qs.length){
+      toast("Não existem questões cadastradas.");
+      return;
+    }
+
+    modal("Questionário", `
+      <form id="quiz">
+        ${qs.map((q,i)=>`
+          <div class="card">
+            <b>${i+1}. ${esc(q.text)}</b>
+            ${q.opts.map((o,j)=>`
+              <label class="check">
+                <input type="radio" name="q${i}" value="${j}" required>
+                ${esc(o)}
+              </label>`).join("")}
+          </div>`).join("")}
+        <button class="btn primary">Finalizar</button>
+      </form>
+    `);
+
+    $("#quiz").onsubmit=e=>{
+      e.preventDefault();
+      let fd=new FormData(e.target);
+      let s=0;
+      qs.forEach((q,i)=>{
+        if(+fd.get("q"+i)===q.ans) s++;
+      });
+      close();
+      toast("Resultado: "+s+"/"+qs.length);
+    };
+    return;
+  }
+}
+
+/* =========================================================
+   EVENTOS DE UI FIXA
+   ========================================================= */
+
+$$(".lt").forEach(x=>{
+  x.onclick=()=>{
+    mode=x.dataset.mode;
+    $$(".lt").forEach(b=>b.classList.toggle("active", b===x));
+    renderAuth();
+  };
+});
+
+if($("#logout")){
+  $("#logout").onclick=()=>{
+    DB.session=null;
+    save();
+    page="dashboard";
+    render();
+  };
+}
+
+if($("#hamb")){
+  $("#hamb").onclick=()=>{
+    $("#side")?.classList.toggle("open");
+  };
+}
+
+if($("#theme")){
+  $("#theme").onclick=()=>action("theme");
+}
+
+if($("#mclose")) $("#mclose").onclick=close;
+
+if($("#modal")){
+  $("#modal").onclick=e=>{
+    if(e.target.id==="modal") close();
+  };
+}
+
+/* =========================================================
+   INICIA
+   ========================================================= */
+
+render();
