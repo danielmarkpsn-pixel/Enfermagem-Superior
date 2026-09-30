@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#075e5a"><title>Enfermagem Superior — V6.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="login" class="login-screen">
+ <div class="login-card">
+  <div class="logo">✚</div><h1>Enfermagem Superior</h1><p>Portal Acadêmico • V6.0</p>
+  <div class="login-tabs"><button class="lt active" data-mode="login">Entrar</button><button class="lt" data-mode="register">Criar conta</button></div>
+  <form id="authForm"></form>
+  <div class="demo">Demo: <b>aluno@demo.com</b> / <b>1234</b> · Professor: <b>professor@demo.com</b> / <b>1234</b> · Admin: <b>admin@demo.com</b> / <b>1234</b></div>
+  <small>Modo demonstração local. Para uso real, conecte o backend descrito em BACKEND.md.</small>
+ </div>
+</div>
+<div id="app" class="hidden">
+<header><button id="hamb">☰</button><div class="brand"><span>✚</span> Enfermagem Superior</div><div class="head-actions"><button id="theme">◐</button><span id="headUser"></span><button id="logout">Sair</button></div></header>
+<aside id="side"><div class="side-profile"><div id="avatar"></div><div><b id="sideName"></b><small id="sideRole"></small></div></div><nav id="nav"></nav></aside>
+<main id="main"></main>
+</div>
+<div id="modal" class="hidden"><div class="modal-card"><div class="modal-title"><h2 id="mtitle"></h2><button id="mclose">×</button></div><div id="mbody"></div></div></div>
+<div id="toast"></div>
+<script src="data.js"></script><script src="app.js"></script>
+</body></html>
